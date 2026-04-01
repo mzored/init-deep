@@ -1,0 +1,18 @@
+{
+  "name": "init-deep",
+  "description": "Deep codebase analysis and multi-agent documentation generator for 7 AI coding platforms",
+  "owner": {
+    "name": "mzored"
+  },
+  "plugins": [
+    {
+      "name": "init-deep",
+      "description": "Deep codebase analysis and multi-agent documentation generator (AGENTS.md, CLAUDE.md, GEMINI.md + 4 more formats)",
+      "version": "1.0.0",
+      "source": "./",
+      "author": {
+        "name": "mzored"
+      }
+    }
+  ]
+}
