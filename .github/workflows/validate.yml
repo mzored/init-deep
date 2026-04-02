@@ -1,0 +1,25 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: python3 scripts/check_init_deep.py
+      - run: python3 scripts/build_init_deep.py
+      - run: git diff --exit-code
+      - run: python3 -m unittest discover -s tests -v
+      - run: python3 -c "from pathlib import Path; import tomllib; tomllib.loads(Path('adapters/gemini/commands/init-deep.toml').read_text(encoding='utf-8'))"
+      - run: npx -y markdownlint-cli2 "README.md" "skills/**/*.md" "adapters/**/*.md" "adapters/**/*.mdc"
+      - run: jq . .claude-plugin/plugin.json > /dev/null
+      - run: jq . .claude-plugin/marketplace.json > /dev/null

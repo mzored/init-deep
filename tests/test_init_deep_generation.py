@@ -1,4 +1,5 @@
 from pathlib import Path
+import subprocess
 import unittest
 
 from tools.init_deep.source import load_canonical_source
@@ -89,6 +90,36 @@ class ModePropagationTests(unittest.TestCase):
             self.assertIn(flag, outputs["adapters/copilot/prompts/init-deep.prompt.md"])
             self.assertIn(flag, outputs["adapters/windsurf/init-deep.md"])
             self.assertIn(flag, outputs["adapters/cline/init-deep.md"])
+
+
+class RepositoryCheckScriptTests(unittest.TestCase):
+    def test_check_script_passes_for_clean_generated_tree(self) -> None:
+        result = subprocess.run(
+            ["python3", "scripts/check_init_deep.py"],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Generated artifacts are in sync.", result.stdout)
+
+    def test_check_script_fails_for_unexpected_generated_file(self) -> None:
+        extra = ROOT / "adapters/windsurf/stale-output.md"
+        extra.parent.mkdir(parents=True, exist_ok=True)
+        extra.write_text("stale\n", encoding="utf-8")
+        try:
+            result = subprocess.run(
+                ["python3", "scripts/check_init_deep.py"],
+                cwd=ROOT,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("Unexpected generated artifacts", result.stdout)
+        finally:
+            extra.unlink()
 
 
 if __name__ == "__main__":
