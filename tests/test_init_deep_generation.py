@@ -78,5 +78,18 @@ class NativeCommandSurfaceTests(unittest.TestCase):
         self.assertIn("Run this prompt only when the user explicitly asks", prompt)
 
 
+class ModePropagationTests(unittest.TestCase):
+    def test_new_modes_propagate_into_all_primary_outputs(self) -> None:
+        source = load_canonical_source(ROOT / "source/init-deep/canonical.md")
+        outputs = render_distribution(source)
+        for flag in ("--dry-run", "--doctor", "--sync-check"):
+            self.assertIn(flag, outputs["skills/init-deep/SKILL.md"])
+            self.assertIn(flag, outputs["adapters/cursor/commands/init-deep.md"])
+            self.assertIn(flag, outputs["adapters/gemini/commands/init-deep.toml"])
+            self.assertIn(flag, outputs["adapters/copilot/prompts/init-deep.prompt.md"])
+            self.assertIn(flag, outputs["adapters/windsurf/init-deep.md"])
+            self.assertIn(flag, outputs["adapters/cline/init-deep.md"])
+
+
 if __name__ == "__main__":
     unittest.main()

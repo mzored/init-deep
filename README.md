@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Deep codebase analysis and multi-agent documentation generator. Analyzes your project and generates documentation files for **7 AI coding platforms** from a single canonical source.
+Deep codebase analysis and multi-agent documentation generator. The checked-in artifacts in `skills/` and `adapters/` are generated from `source/init-deep/canonical.md`; edit the canonical source and rebuild instead of hand-editing distribution files.
 
 ## What it does
 
@@ -41,6 +41,8 @@ rm -rf /tmp/init-deep
 
 ```bash
 git clone https://github.com/MZored/init-deep.git /tmp/init-deep
+mkdir -p .cursor/commands .cursor/rules
+cp /tmp/init-deep/adapters/cursor/commands/init-deep.md .cursor/commands/init-deep.md
 cp /tmp/init-deep/adapters/cursor.mdc .cursor/rules/init-deep.mdc
 rm -rf /tmp/init-deep
 ```
@@ -49,8 +51,8 @@ rm -rf /tmp/init-deep
 
 ```bash
 git clone https://github.com/MZored/init-deep.git /tmp/init-deep
-mkdir -p ~/.gemini/instructions
-cp /tmp/init-deep/skills/init-deep/SKILL.md ~/.gemini/instructions/init-deep.md
+mkdir -p .gemini/commands
+cp /tmp/init-deep/adapters/gemini/commands/init-deep.toml .gemini/commands/init-deep.toml
 rm -rf /tmp/init-deep
 ```
 
@@ -58,16 +60,21 @@ rm -rf /tmp/init-deep
 
 ```bash
 git clone https://github.com/MZored/init-deep.git /tmp/init-deep
-mkdir -p .github
+mkdir -p .github/prompts
+cp /tmp/init-deep/adapters/copilot/prompts/init-deep.prompt.md .github/prompts/init-deep.prompt.md
 cp /tmp/init-deep/adapters/copilot.md .github/copilot-instructions.md
 rm -rf /tmp/init-deep
 ```
+
+Copilot prompt files require prompt-file support. In VS Code, enable
+`chat.promptFiles` before expecting `.github/prompts/init-deep.prompt.md`
+to appear in the prompt picker.
 
 ### Windsurf
 
 ```bash
 git clone https://github.com/MZored/init-deep.git /tmp/init-deep
-cp /tmp/init-deep/skills/init-deep/SKILL.md .windsurfrules
+cp /tmp/init-deep/adapters/windsurf/init-deep.md .windsurfrules
 rm -rf /tmp/init-deep
 ```
 
@@ -75,15 +82,15 @@ rm -rf /tmp/init-deep
 
 ```bash
 git clone https://github.com/MZored/init-deep.git /tmp/init-deep
-cp /tmp/init-deep/skills/init-deep/SKILL.md .clinerules
+cp /tmp/init-deep/adapters/cline/init-deep.md .clinerules
 rm -rf /tmp/init-deep
 ```
 
 ## Usage
 
-Once installed, type `/init-deep` in your AI coding assistant.
+### Shared flags
 
-```
+```bash
 /init-deep                      # Update existing docs + create new where needed
 /init-deep --create-new         # Regenerate all docs from scratch
 /init-deep --max-depth=2        # Limit directory analysis depth (default: 3)
@@ -93,6 +100,9 @@ Once installed, type `/init-deep` in your AI coding assistant.
 /init-deep --skip-copilot       # Skip Copilot format generation
 /init-deep --skip-windsurf      # Skip Windsurf format generation
 /init-deep --skip-cline         # Skip Cline format generation
+/init-deep --dry-run            # Preview scores and planned writes
+/init-deep --doctor             # Audit existing agent docs and install paths
+/init-deep --sync-check         # Verify generated files are in sync with the canonical source
 ```
 
 ## How it works
@@ -104,7 +114,7 @@ Once installed, type `/init-deep` in your AI coding assistant.
 
 ## Keeping docs in sync
 
-`AGENTS.md` is the canonical source of truth. After editing it, run `/init-deep` again to propagate changes to all derived files.
+`source/init-deep/canonical.md` is the canonical source of truth for this repository. After editing it, rebuild the generated artifacts and rerun validation so `skills/`, `adapters/`, and metadata stay synchronized.
 
 ## Contributing
 
