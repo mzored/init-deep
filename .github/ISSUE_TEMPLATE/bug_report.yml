@@ -1,0 +1,47 @@
+name: Bug report
+description: Report a defect in init-deep or its generated outputs.
+title: "[bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report.
+
+        For security issues, do not use this form. Follow the guidance in `SECURITY.md`.
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, coding assistant, and relevant versions
+      placeholder: macOS 15, Codex desktop, Python 3.14
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest sequence of steps that reproduces the issue.
+      placeholder: |
+        1. Run ...
+        2. Open ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Relevant command output
+      description: Paste relevant output from validation commands or the failing command.
+      render: shell

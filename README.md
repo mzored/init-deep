@@ -118,7 +118,10 @@ rm -rf /tmp/init-deep
 
 ## Contributing
 
-Contributions welcome! Please open an issue or PR.
+Contributions are welcome. Start with
+[`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md) for the generated-artifact
+workflow and validation commands, and use
+[`.github/SECURITY.md`](.github/SECURITY.md) for private vulnerability reports.
 
 ## License
 

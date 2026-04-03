@@ -1,3 +1,5 @@
+* text=auto eol=lf
+
 skills/init-deep/SKILL.md linguist-generated=true
 adapters/cursor.mdc linguist-generated=true
 adapters/cursor/commands/init-deep.md linguist-generated=true

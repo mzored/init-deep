@@ -1,0 +1,34 @@
+name: Feature request
+description: Propose a new capability or workflow improvement for init-deep.
+title: "[feature] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea.
+
+        Please explain the user problem first, then describe the proposed change.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What workflow is blocked, confusing, or missing today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior you want and how you expect it to work.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe any workarounds or alternative designs you have already tried.
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Include relevant flags, generated outputs, or examples.

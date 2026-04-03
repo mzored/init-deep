@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Local assistant state
+.serena/
+docs/superpowers/
+
+# Python caches and environments
+**/__pycache__/
+*.py[cod]
+.coverage
+.coverage.*
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local editor settings
+.idea/
+.vscode/
