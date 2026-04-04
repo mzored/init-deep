@@ -96,6 +96,7 @@ class RepoMetadataTests(unittest.TestCase):
         self.assertEqual(plugin["name"], plugin_entry["name"])
         self.assertEqual(plugin["version"], plugin_entry["version"])
         self.assertRegex(plugin["version"], re.compile(r"^\d+\.\d+\.\d+$"))
+        self.assertEqual(plugin["repository"], "https://github.com/mzored/init-deep")
 
     @unittest.skipUnless(shutil.which("claude"), "claude CLI not available")
     def test_claude_cli_validates_plugin_distribution_when_available(self) -> None:

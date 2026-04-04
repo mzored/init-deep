@@ -26,21 +26,21 @@ Deep codebase analysis and multi-agent documentation generator. The checked-in a
 From the terminal:
 
 ```bash
-claude plugin marketplace add MZored/init-deep
+claude plugin marketplace add mzored/init-deep
 claude plugin install init-deep
 ```
 
 Or from an interactive Claude Code session:
 
 ```text
-/plugin marketplace add MZored/init-deep
+/plugin marketplace add mzored/init-deep
 /plugin install init-deep
 ```
 
 ### OpenAI Codex CLI
 
 ```bash
-git clone https://github.com/MZored/init-deep.git /tmp/init-deep
+git clone https://github.com/mzored/init-deep.git /tmp/init-deep
 mkdir -p ~/.codex/skills/init-deep
 cp /tmp/init-deep/skills/init-deep/SKILL.md ~/.codex/skills/init-deep/SKILL.md
 rm -rf /tmp/init-deep
@@ -49,7 +49,7 @@ rm -rf /tmp/init-deep
 ### Cursor
 
 ```bash
-git clone https://github.com/MZored/init-deep.git /tmp/init-deep
+git clone https://github.com/mzored/init-deep.git /tmp/init-deep
 mkdir -p .cursor/commands .cursor/rules
 cp /tmp/init-deep/adapters/cursor/commands/init-deep.md .cursor/commands/init-deep.md
 cp /tmp/init-deep/adapters/cursor.mdc .cursor/rules/init-deep.mdc
@@ -59,7 +59,7 @@ rm -rf /tmp/init-deep
 ### Google Gemini CLI
 
 ```bash
-git clone https://github.com/MZored/init-deep.git /tmp/init-deep
+git clone https://github.com/mzored/init-deep.git /tmp/init-deep
 mkdir -p .gemini/commands
 cp /tmp/init-deep/adapters/gemini/commands/init-deep.toml .gemini/commands/init-deep.toml
 rm -rf /tmp/init-deep
@@ -68,7 +68,7 @@ rm -rf /tmp/init-deep
 ### GitHub Copilot
 
 ```bash
-git clone https://github.com/MZored/init-deep.git /tmp/init-deep
+git clone https://github.com/mzored/init-deep.git /tmp/init-deep
 mkdir -p .github/prompts
 cp /tmp/init-deep/adapters/copilot/prompts/init-deep.prompt.md .github/prompts/init-deep.prompt.md
 cp /tmp/init-deep/adapters/copilot.md .github/copilot-instructions.md
@@ -82,7 +82,7 @@ to appear in the prompt picker.
 ### Windsurf
 
 ```bash
-git clone https://github.com/MZored/init-deep.git /tmp/init-deep
+git clone https://github.com/mzored/init-deep.git /tmp/init-deep
 cp /tmp/init-deep/adapters/windsurf/init-deep.md .windsurfrules
 rm -rf /tmp/init-deep
 ```
@@ -90,7 +90,7 @@ rm -rf /tmp/init-deep
 ### Cline
 
 ```bash
-git clone https://github.com/MZored/init-deep.git /tmp/init-deep
+git clone https://github.com/mzored/init-deep.git /tmp/init-deep
 cp /tmp/init-deep/adapters/cline/init-deep.md .clinerules
 rm -rf /tmp/init-deep
 ```
