@@ -148,6 +148,22 @@ def _cmd_check(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_targets(args: argparse.Namespace) -> int:
+    from .generators import generate_support_matrix, generate_target_summary
+
+    registry = create_default_registry()
+    action = getattr(args, "action", None) or "list"
+
+    if action == "list":
+        print(generate_target_summary(registry), end="")
+    elif action == "matrix":
+        print(generate_support_matrix(registry), end="")
+    else:
+        print(f"Unknown targets action: {action}", file=sys.stderr)
+        return 1
+    return 0
+
+
 def _cmd_lint(args: argparse.Namespace) -> int:
     from .linter import lint_command
 
@@ -232,6 +248,18 @@ def main() -> int:
                 help="Output build plan as machine-readable JSON",
             )
 
+    # targets subcommand
+    targets_parser = sub.add_parser(
+        "targets", help="Show target registry information"
+    )
+    targets_parser.add_argument(
+        "action",
+        nargs="?",
+        default="list",
+        choices=["list", "matrix"],
+        help="Action: list (default) or matrix",
+    )
+
     # lint subcommand
     lint_parser = sub.add_parser(
         "lint", help="Validate source schema and semantics"
@@ -253,6 +281,7 @@ def main() -> int:
         "build": _cmd_build,
         "check": _cmd_check,
         "lint": _cmd_lint,
+        "targets": _cmd_targets,
     }
     return dispatch[args.command](args)
 
