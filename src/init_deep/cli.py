@@ -174,6 +174,27 @@ def _cmd_doctor(args: argparse.Namespace) -> int:
     return 1 if has_errors else 0
 
 
+def _cmd_watch(args: argparse.Namespace) -> int:
+    root = _project_root()
+    _ensure_tools_importable(root)
+
+    from .watcher import watch_loop
+
+    def do_build() -> int:
+        return _cmd_build(args)
+
+    # Run initial build
+    print("Running initial build...")
+    result = do_build()
+    if result != 0:
+        print("Initial build failed, starting watch anyway.\n")
+    else:
+        print("Initial build succeeded.\n")
+
+    watch_loop(root, do_build, interval=args.interval)
+    return 0
+
+
 def _cmd_lint(args: argparse.Namespace) -> int:
     from .linter import lint_command
 
@@ -270,6 +291,17 @@ def main() -> int:
         help="Action: list (default) or matrix",
     )
 
+    # watch subcommand
+    watch_parser = sub.add_parser(
+        "watch", help="Watch source files and rebuild on change"
+    )
+    watch_parser.add_argument(
+        "--interval",
+        type=float,
+        default=1.0,
+        help="Polling interval in seconds (default: 1.0)",
+    )
+
     # doctor subcommand
     sub.add_parser("doctor", help="Validate workspace health")
 
@@ -296,6 +328,7 @@ def main() -> int:
         "doctor": _cmd_doctor,
         "lint": _cmd_lint,
         "targets": _cmd_targets,
+        "watch": _cmd_watch,
     }
     return dispatch[args.command](args)
 
