@@ -5,6 +5,17 @@ from __future__ import annotations
 from ..ir import ArtifactIR, CommandIR
 from .base import Diagnostic, PlannedArtifact, TargetCapabilities
 
+# Hardcoded to match legacy render_skill() output exactly.
+_DESCRIPTION = (
+    "Deeply analyze a codebase and generate multi-agent project documentation"
+    " (AGENTS.md + CLAUDE.md + GEMINI.md + scoped docs)."
+    " Only invoke when user explicitly types /init-deep."
+)
+_ARGUMENT_HINT = (
+    "[--create-new] [--max-depth=N] [--only=claude,codex]"
+    " [--skip-cursor] [--dry-run] [--doctor] [--sync-check]"
+)
+
 
 class ClaudeTarget:
     """Target plugin for Claude Code (skills)."""
@@ -39,9 +50,8 @@ class ClaudeTarget:
         return (
             "---\n"
             f"name: {cmd.id}\n"
-            f"description: {cmd.summary}. "
-            f"Only invoke when user explicitly types /{cmd.id}.\n"
-            f'argument-hint: "{cmd.argument_hint}"\n'
+            f"description: {_DESCRIPTION}\n"
+            f'argument-hint: "{_ARGUMENT_HINT}"\n'
             "disable-model-invocation: true\n"
             "---\n\n"
             + body

@@ -6,6 +6,11 @@ from ..ir import ArtifactIR, CommandIR
 from .base import Diagnostic, PlannedArtifact, TargetCapabilities
 
 
+def _toml_string(value: str) -> str:
+    """Normalize a string for TOML triple-quoted output (matches legacy)."""
+    return value.rstrip() + "\n"
+
+
 class GeminiTarget:
     """Target plugin for Gemini CLI (TOML commands)."""
 
@@ -34,15 +39,19 @@ class GeminiTarget:
         ]
 
     def render(self, artifact: PlannedArtifact, cmd: CommandIR) -> str:
+        # Matches legacy render_gemini_command() exactly.
         body = cmd.sections[0].markdown
-        # Escape body for TOML triple-quoted string: no escaping needed
-        # for triple-quoted strings as long as there are no triple quotes in body
+        prompt = (
+            f"# /{cmd.id}\n\n"
+            "Use this command only when the user explicitly asks to initialize"
+            " or refresh project agent documentation.\n\n"
+            + body
+        )
         return (
-            f'name = "{cmd.id}"\n'
-            f'description = "{cmd.summary}"\n\n'
-            f"prompt = '''\n"
-            f"{body}"
-            f"'''\n"
+            'description = "Deep project initialization for multi-agent documentation"\n\n'
+            'prompt = """\n'
+            + _toml_string(prompt)
+            + '"""\n'
         )
 
     def validate(self, artifact: ArtifactIR) -> list[Diagnostic]:

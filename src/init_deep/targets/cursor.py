@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from textwrap import dedent
+
 from ..ir import ArtifactIR, CommandIR
 from .base import Diagnostic, PlannedArtifact, TargetCapabilities
 
@@ -30,7 +32,7 @@ class CursorTarget:
             PlannedArtifact(
                 target="cursor",
                 kind="rule",
-                relpath=f"adapters/cursor.mdc",
+                relpath="adapters/cursor.mdc",
             ),
             PlannedArtifact(
                 target="cursor",
@@ -45,20 +47,29 @@ class CursorTarget:
         return self._render_command(cmd)
 
     def _render_rule(self, cmd: CommandIR) -> str:
-        return (
-            "---\n"
-            f"description: Trigger for /{cmd.id} command\n"
-            "alwaysApply: false\n"
-            "---\n\n"
-            f"When the user types `/{cmd.id}`, follow the instructions in "
-            f"`commands/{cmd.id}.md` exactly.\n"
+        # Matches legacy render_cursor_rule() exactly.
+        return dedent(
+            """\
+            ---
+            description: "Offer init-deep only when the user explicitly asks to generate or refresh agent documentation."
+            alwaysApply: false
+            ---
+
+            # init-deep helper
+
+            - Offer `/init-deep` when the user explicitly asks for a deep documentation pass.
+            - The full workflow lives in `.cursor/commands/init-deep.md`.
+            - Do not auto-attach the full init-deep workflow to unrelated requests.
+            """
         )
 
     def _render_command(self, cmd: CommandIR) -> str:
+        # Matches legacy render_cursor_command() exactly.
         body = cmd.sections[0].markdown
         return (
-            f"# {cmd.title}\n\n"
-            f"> {cmd.summary}\n\n"
+            f"# /{cmd.id}\n\n"
+            "Use this command only when the user explicitly asks to initialize"
+            " or refresh project agent documentation.\n\n"
             + body
         )
 

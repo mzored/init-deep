@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from textwrap import dedent
+
 from ..ir import ArtifactIR, CommandIR
 from .base import Diagnostic, PlannedArtifact, TargetCapabilities
 
@@ -45,17 +47,24 @@ class CopilotTarget:
         return self._render_prompt(cmd)
 
     def _render_instructions(self, cmd: CommandIR) -> str:
-        return (
-            f"# {cmd.title}\n\n"
-            f"{cmd.summary}.\n\n"
-            f"For the full workflow, see `.github/prompts/{cmd.id}.prompt.md`.\n"
+        # Matches legacy render_copilot_instructions() exactly.
+        return dedent(
+            """\
+            # init-deep repository guidance
+
+            - Keep `.github/copilot-instructions.md` short and repository-wide.
+            - Use `.github/prompts/init-deep.prompt.md` for the full init-deep workflow.
+            - Treat generated `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files as outputs, not hand-maintained sources.
+            """
         )
 
     def _render_prompt(self, cmd: CommandIR) -> str:
+        # Matches legacy render_copilot_prompt() exactly.
         body = cmd.sections[0].markdown
         return (
-            f"# {cmd.title}\n\n"
-            f"> {cmd.summary}\n\n"
+            "# init-deep\n\n"
+            "Run this prompt only when the user explicitly asks for a deep"
+            " repository initialization pass.\n\n"
             + body
         )
 

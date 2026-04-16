@@ -34,12 +34,8 @@ class WindsurfTarget:
         ]
 
     def render(self, artifact: PlannedArtifact, cmd: CommandIR) -> str:
-        body = cmd.sections[0].markdown
-        return (
-            f"# {cmd.title}\n\n"
-            f"> {cmd.summary}\n\n"
-            + body
-        )
+        # Matches legacy render_windsurf_output(): just the body.
+        return cmd.sections[0].markdown
 
     def validate(self, artifact: ArtifactIR) -> list[Diagnostic]:
         return []
