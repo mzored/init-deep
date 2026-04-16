@@ -19,3 +19,6 @@ venv/
 # Local editor settings
 .idea/
 .vscode/
+
+# Git worktrees
+.worktrees/
