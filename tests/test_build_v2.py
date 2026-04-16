@@ -23,13 +23,13 @@ class BuildV2Tests(unittest.TestCase):
         # Load via new pipeline
         v2_outputs = build_v2(ROOT / "source/commands/init-deep")
 
-        # Same keys
-        self.assertEqual(
-            sorted(legacy_outputs.keys()),
-            sorted(v2_outputs.keys()),
+        # Legacy keys must be a subset of v2 keys (v2 may have new targets)
+        self.assertTrue(
+            set(legacy_outputs.keys()) <= set(v2_outputs.keys()),
+            f"Legacy keys not in v2: {set(legacy_outputs.keys()) - set(v2_outputs.keys())}",
         )
 
-        # Same content for every key
+        # Same content for every legacy key
         for key in sorted(legacy_outputs):
             self.assertEqual(
                 legacy_outputs[key],

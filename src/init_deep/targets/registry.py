@@ -37,9 +37,11 @@ def create_default_registry(profile: str = "legacy") -> TargetRegistry:
     """
     from .claude import ClaudeTarget
     from .cline import ClineTarget
+    from .continue_target import ContinueTarget
     from .copilot import CopilotTarget
     from .cursor import CursorTarget
     from .gemini import GeminiTarget
+    from .roo import RooTarget
     from .windsurf import WindsurfTarget
 
     mode = "modern" if profile == "modern" else "legacy"
@@ -49,7 +51,9 @@ def create_default_registry(profile: str = "legacy") -> TargetRegistry:
         ClaudeTarget(),
         CursorTarget(),
         CopilotTarget(),
+        ContinueTarget(),
         GeminiTarget(),
+        RooTarget(),
         WindsurfTarget(mode=mode),
         ClineTarget(mode=mode),
     ]:

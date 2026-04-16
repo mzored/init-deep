@@ -68,13 +68,13 @@ class TestTargetRegistry(unittest.TestCase):
         registry = create_default_registry()
         all_targets = registry.all()
         self.assertIsInstance(all_targets, dict)
-        self.assertEqual(len(all_targets), 6)
+        self.assertEqual(len(all_targets), 8)
 
 
 class TestDefaultRegistry(unittest.TestCase):
     """Tests for the default registry contents."""
 
-    EXPECTED_TARGETS = ["claude", "cline", "copilot", "cursor", "gemini", "windsurf"]
+    EXPECTED_TARGETS = ["claude", "cline", "continue", "copilot", "cursor", "gemini", "roo", "windsurf"]
 
     def setUp(self) -> None:
         self.registry = create_default_registry()
