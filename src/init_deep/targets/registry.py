@@ -28,8 +28,13 @@ class TargetRegistry:
         return dict(self._targets)
 
 
-def create_default_registry() -> TargetRegistry:
-    """Create registry with all built-in targets."""
+def create_default_registry(profile: str = "legacy") -> TargetRegistry:
+    """Create registry with all built-in targets.
+
+    Args:
+        profile: "legacy" (flat files) or "modern" (structured directories).
+                 Affects Windsurf and Cline target modes.
+    """
     from .claude import ClaudeTarget
     from .cline import ClineTarget
     from .copilot import CopilotTarget
@@ -37,14 +42,16 @@ def create_default_registry() -> TargetRegistry:
     from .gemini import GeminiTarget
     from .windsurf import WindsurfTarget
 
+    mode = "modern" if profile == "modern" else "legacy"
+
     registry = TargetRegistry()
-    for target_cls in [
-        ClaudeTarget,
-        CursorTarget,
-        CopilotTarget,
-        GeminiTarget,
-        WindsurfTarget,
-        ClineTarget,
+    for target in [
+        ClaudeTarget(),
+        CursorTarget(),
+        CopilotTarget(),
+        GeminiTarget(),
+        WindsurfTarget(mode=mode),
+        ClineTarget(mode=mode),
     ]:
-        registry.register(target_cls())
+        registry.register(target)
     return registry
