@@ -52,11 +52,36 @@ def _cmd_build(args: argparse.Namespace) -> int:
     from tools.init_deep.renderers import render_distribution
     from tools.init_deep.paths import managed_paths
 
+    from .planner import (
+        plan_build,
+        format_plan_table,
+        format_plan_json,
+        format_plan_diff,
+    )
+
     source = load_canonical_source(root / "source/init-deep/canonical.md")
     outputs = render_distribution(source)
+    managed = managed_paths(root)
+
+    # --dry-run, --diff, --json: compute plan without writing
+    dry_run = getattr(args, "dry_run", False)
+    show_diff = getattr(args, "diff", False)
+    show_json = getattr(args, "json", False)
+
+    if dry_run or show_diff or show_json:
+        plan = plan_build(outputs, root, managed, prune=True)
+        if show_json:
+            print(format_plan_json(plan))
+        elif show_diff:
+            print(format_plan_diff(plan, outputs, root))
+        else:
+            print(format_plan_table(plan))
+        return 0
+
+    # Normal build
     expected_paths = {root / relative_path for relative_path in outputs}
 
-    for stale_path in managed_paths(root) - expected_paths:
+    for stale_path in managed - expected_paths:
         stale_path.unlink()
 
     for relative_path, content in outputs.items():
@@ -78,12 +103,24 @@ def _cmd_check(args: argparse.Namespace) -> int:
     from tools.init_deep.renderers import render_distribution
     from tools.init_deep.paths import managed_paths
 
+    from .planner import plan_build, format_plan_diff
+
     source = load_canonical_source(root / "source/init-deep/canonical.md")
     outputs = render_distribution(source)
+    managed = managed_paths(root)
+
+    show_diff = getattr(args, "diff", False)
+
+    if show_diff:
+        plan = plan_build(outputs, root, managed)
+        print(format_plan_diff(plan, outputs, root))
+        has_issues = bool(plan.writes or plan.deletes)
+        return 1 if has_issues else 0
+
     expected_paths = {root / rp for rp in outputs}
     errors = 0
 
-    for stale in sorted(managed_paths(root) - expected_paths):
+    for stale in sorted(managed - expected_paths):
         print(f"STALE  {stale.relative_to(root)}")
         errors += 1
 
@@ -144,6 +181,29 @@ def main() -> int:
                 action="store_true",
                 default=False,
                 help=f"Skip the {tname} target",
+            )
+
+        # --diff is available on both build and check
+        sp.add_argument(
+            "--diff",
+            action="store_true",
+            default=False,
+            help="Show unified diffs of changes without writing files",
+        )
+
+        # --dry-run and --json are build-only
+        if name == "build":
+            sp.add_argument(
+                "--dry-run",
+                action="store_true",
+                default=False,
+                help="Show what would happen without writing files",
+            )
+            sp.add_argument(
+                "--json",
+                action="store_true",
+                default=False,
+                help="Output build plan as machine-readable JSON",
             )
 
     args = parser.parse_args()
