@@ -164,6 +164,16 @@ def _cmd_targets(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_doctor(args: argparse.Namespace) -> int:
+    from .doctor import run_doctor, format_doctor_output
+
+    root = _project_root()
+    checks = run_doctor(root)
+    print(format_doctor_output(checks))
+    has_errors = any(c.status == "error" for c in checks)
+    return 1 if has_errors else 0
+
+
 def _cmd_lint(args: argparse.Namespace) -> int:
     from .linter import lint_command
 
@@ -260,6 +270,9 @@ def main() -> int:
         help="Action: list (default) or matrix",
     )
 
+    # doctor subcommand
+    sub.add_parser("doctor", help="Validate workspace health")
+
     # lint subcommand
     lint_parser = sub.add_parser(
         "lint", help="Validate source schema and semantics"
@@ -280,6 +293,7 @@ def main() -> int:
     dispatch = {
         "build": _cmd_build,
         "check": _cmd_check,
+        "doctor": _cmd_doctor,
         "lint": _cmd_lint,
         "targets": _cmd_targets,
     }
