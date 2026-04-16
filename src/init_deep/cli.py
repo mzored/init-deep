@@ -1,0 +1,113 @@
+"""CLI entry point for init-deep."""
+
+import argparse
+import sys
+from pathlib import Path
+
+
+def _project_root() -> Path:
+    """Walk up from this file to find the repo root (contains source/)."""
+    candidate = Path(__file__).resolve()
+    for parent in candidate.parents:
+        if (parent / "source").is_dir():
+            return parent
+    raise RuntimeError("Cannot locate project root")
+
+
+def _ensure_tools_importable(root: Path) -> None:
+    """Add the project root to sys.path so ``tools.init_deep`` is importable."""
+    tools_parent = str(root)
+    if tools_parent not in sys.path:
+        sys.path.insert(0, tools_parent)
+
+
+def _cmd_build(_args: argparse.Namespace) -> int:
+    root = _project_root()
+    _ensure_tools_importable(root)
+
+    # Import lazily so the module-level sys.path tweak takes effect first.
+    from tools.init_deep.source import load_canonical_source
+    from tools.init_deep.renderers import render_distribution
+    from tools.init_deep.paths import managed_paths
+
+    source = load_canonical_source(root / "source/init-deep/canonical.md")
+    outputs = render_distribution(source)
+    expected_paths = {root / relative_path for relative_path in outputs}
+
+    for stale_path in managed_paths(root) - expected_paths:
+        stale_path.unlink()
+
+    for relative_path, content in outputs.items():
+        destination = root / relative_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(content, encoding="utf-8")
+    return 0
+
+
+def _cmd_check(_args: argparse.Namespace) -> int:
+    root = _project_root()
+    _ensure_tools_importable(root)
+
+    from difflib import unified_diff
+    from tools.init_deep.source import load_canonical_source
+    from tools.init_deep.renderers import render_distribution
+    from tools.init_deep.paths import managed_paths
+
+    source = load_canonical_source(root / "source/init-deep/canonical.md")
+    outputs = render_distribution(source)
+    expected_paths = {root / rp for rp in outputs}
+    errors = 0
+
+    for stale in sorted(managed_paths(root) - expected_paths):
+        print(f"STALE  {stale.relative_to(root)}")
+        errors += 1
+
+    for relative_path, expected in sorted(outputs.items()):
+        dest = root / relative_path
+        if not dest.exists():
+            print(f"MISSING {relative_path}")
+            errors += 1
+            continue
+        actual = dest.read_text(encoding="utf-8")
+        if actual != expected:
+            diff = unified_diff(
+                actual.splitlines(keepends=True),
+                expected.splitlines(keepends=True),
+                fromfile=f"a/{relative_path}",
+                tofile=f"b/{relative_path}",
+            )
+            sys.stdout.writelines(diff)
+            errors += 1
+
+    if errors:
+        print(f"\n{errors} file(s) out of sync — run: python3 scripts/build_init_deep.py")
+        return 1
+    print("All generated files are in sync.")
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        prog="init-deep",
+        description="Multi-platform AI documentation compiler",
+    )
+    sub = parser.add_subparsers(dest="command")
+
+    sub.add_parser("build", help="Regenerate all platform adapters")
+    sub.add_parser("check", help="Validate generated artifacts match canonical source")
+
+    args = parser.parse_args()
+
+    if args.command is None:
+        parser.print_help()
+        return 0
+
+    dispatch = {
+        "build": _cmd_build,
+        "check": _cmd_check,
+    }
+    return dispatch[args.command](args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
