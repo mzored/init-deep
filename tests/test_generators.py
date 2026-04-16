@@ -38,9 +38,9 @@ class TestSupportMatrix(unittest.TestCase):
         for col in ("Platform", "Primary Surface", "Skills", "Workflows", "Commands"):
             self.assertIn(col, header)
 
-    def test_target_count_is_eight(self):
+    def test_target_count(self):
         targets = self.registry.list_targets()
-        self.assertEqual(len(targets), 8)
+        self.assertEqual(len(targets), 9)
 
 
 class TestGitattributesEntries(unittest.TestCase):

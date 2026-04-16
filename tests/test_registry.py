@@ -68,13 +68,13 @@ class TestTargetRegistry(unittest.TestCase):
         registry = create_default_registry()
         all_targets = registry.all()
         self.assertIsInstance(all_targets, dict)
-        self.assertEqual(len(all_targets), 8)
+        self.assertEqual(len(all_targets), 9)
 
 
 class TestDefaultRegistry(unittest.TestCase):
     """Tests for the default registry contents."""
 
-    EXPECTED_TARGETS = ["claude", "cline", "continue", "copilot", "cursor", "gemini", "roo", "windsurf"]
+    EXPECTED_TARGETS = ["claude", "cline", "codex", "continue", "copilot", "cursor", "gemini", "roo", "windsurf"]
 
     def setUp(self) -> None:
         self.registry = create_default_registry()
@@ -102,11 +102,15 @@ class TestTargetPlugins(unittest.TestCase):
         self.registry = create_default_registry()
         self.cmd = _make_test_command()
 
+    # Targets that produce no artifacts (e.g. codex reads AGENTS.md natively)
+    NO_ARTIFACT_TARGETS = {"codex"}
+
     def test_each_target_can_plan(self) -> None:
         for name, plugin in self.registry.all().items():
             artifacts = plugin.plan(self.cmd)
             self.assertIsInstance(artifacts, list, f"{name}.plan() must return a list")
-            self.assertGreater(len(artifacts), 0, f"{name}.plan() returned empty list")
+            if name not in self.NO_ARTIFACT_TARGETS:
+                self.assertGreater(len(artifacts), 0, f"{name}.plan() returned empty list")
             for art in artifacts:
                 self.assertIsInstance(art, PlannedArtifact)
                 self.assertEqual(art.target, name)

@@ -45,7 +45,8 @@ def _cmd_build(args: argparse.Namespace) -> int:
     _ensure_tools_importable(root)
 
     selected = _resolve_selected_targets(args)
-    print(f"Targets: {', '.join(selected)}")
+    if not getattr(args, "json", False):
+        print(f"Targets: {', '.join(selected)}", file=sys.stderr)
 
     from tools.init_deep.paths import managed_paths
     from .build import build_v2
@@ -96,7 +97,8 @@ def _cmd_check(args: argparse.Namespace) -> int:
     _ensure_tools_importable(root)
 
     selected = _resolve_selected_targets(args)
-    print(f"Targets: {', '.join(selected)}")
+    if not getattr(args, "json", False):
+        print(f"Targets: {', '.join(selected)}", file=sys.stderr)
 
     from difflib import unified_diff
     from tools.init_deep.paths import managed_paths

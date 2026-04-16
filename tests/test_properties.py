@@ -171,8 +171,11 @@ class RegistryInvariantTests(unittest.TestCase):
                 plugin.contract_version, f"{name} has empty contract_version"
             )
 
+    # Targets that produce no artifacts (e.g. codex reads AGENTS.md natively)
+    NO_ARTIFACT_TARGETS = {"codex"}
+
     def test_all_targets_produce_at_least_one_artifact(self) -> None:
-        """Every target must plan at least one artifact."""
+        """Every artifact-producing target must plan at least one artifact."""
         from src.init_deep.compiler import compile_command
         from src.init_deep.loader import load_command
         from src.init_deep.targets.registry import create_default_registry
@@ -181,6 +184,8 @@ class RegistryInvariantTests(unittest.TestCase):
         cmd = compile_command(spec, body)
         registry = create_default_registry()
         for name in registry.list_targets():
+            if name in self.NO_ARTIFACT_TARGETS:
+                continue
             plugin = registry.get(name)
             artifacts = plugin.plan(cmd)
             self.assertTrue(

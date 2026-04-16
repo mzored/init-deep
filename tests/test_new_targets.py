@@ -185,9 +185,9 @@ class TestRooTarget(unittest.TestCase):
 class TestRegistryWithNewTargets(unittest.TestCase):
     """Tests for registry integration of new targets."""
 
-    def test_registry_has_eight_targets(self) -> None:
+    def test_registry_has_nine_targets(self) -> None:
         registry = create_default_registry()
-        self.assertEqual(len(registry.all()), 8)
+        self.assertEqual(len(registry.all()), 9)
 
     def test_registry_contains_continue(self) -> None:
         registry = create_default_registry()

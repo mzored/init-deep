@@ -63,11 +63,28 @@ def render_copilot_instructions() -> str:
 
 
 def render_copilot_prompt(source: CanonicalSource) -> str:
-    return (
+    body = _body(source)
+    header = (
         "# init-deep\n\n"
-        "Run this prompt only when the user explicitly asks for a deep repository initialization pass.\n\n"
-        + _body(source)
+        "Run this prompt only when the user explicitly asks for a deep"
+        " repository initialization pass.\n\n"
     )
+    budget = 8000
+    header_size = len(header.encode("utf-8"))
+    remaining = budget - header_size
+    truncation_note = (
+        "\n\n<!-- Truncated to fit Copilot prompt budget. "
+        "See the full workflow in the Claude Code or Cursor adapter. -->\n"
+    )
+    body_bytes = body.encode("utf-8")
+    if len(body_bytes) > remaining:
+        cut = remaining - len(truncation_note.encode("utf-8"))
+        truncated = body_bytes[:cut].decode("utf-8", errors="ignore")
+        last_break = truncated.rfind("\n\n")
+        if last_break > 0:
+            truncated = truncated[:last_break]
+        return header + truncated + truncation_note
+    return header + body
 
 
 def render_gemini_command(source: CanonicalSource) -> str:

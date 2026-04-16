@@ -104,6 +104,8 @@ def lint_command(spec_dir: Path) -> list[LintDiagnostic]:
     # W031: Flag-like patterns in body not declared in spec
     spec_flag_names = {f.name for f in spec.flags}
     body_flags = set(re.findall(r"`(--[a-z][a-z0-9-]*)`", body))
+    # --skip-* flags are CLI-only (generated from target names), not declared in spec
+    body_flags = {f for f in body_flags if not f.startswith("--skip-")}
     for bf in sorted(body_flags - spec_flag_names):
         line = _find_line(body, bf)
         diagnostics.append(

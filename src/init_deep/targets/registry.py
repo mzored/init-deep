@@ -37,6 +37,7 @@ def create_default_registry(profile: str = "legacy") -> TargetRegistry:
     """
     from .claude import ClaudeTarget
     from .cline import ClineTarget
+    from .codex import CodexTarget
     from .continue_target import ContinueTarget
     from .copilot import CopilotTarget
     from .cursor import CursorTarget
@@ -49,6 +50,7 @@ def create_default_registry(profile: str = "legacy") -> TargetRegistry:
     registry = TargetRegistry()
     for target in [
         ClaudeTarget(),
+        CodexTarget(),
         CursorTarget(),
         CopilotTarget(),
         ContinueTarget(),

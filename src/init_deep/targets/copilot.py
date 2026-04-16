@@ -59,14 +59,30 @@ class CopilotTarget:
         )
 
     def _render_prompt(self, cmd: CommandIR) -> str:
-        # Matches legacy render_copilot_prompt() exactly.
         body = cmd.sections[0].markdown
-        return (
+        header = (
             "# init-deep\n\n"
             "Run this prompt only when the user explicitly asks for a deep"
             " repository initialization pass.\n\n"
-            + body
         )
+        budget = self.capabilities().size_budget_bytes or 8000
+        header_size = len(header.encode("utf-8"))
+        remaining = budget - header_size
+        truncation_note = (
+            "\n\n<!-- Truncated to fit Copilot prompt budget. "
+            "See the full workflow in the Claude Code or Cursor adapter. -->\n"
+        )
+        body_bytes = body.encode("utf-8")
+        if len(body_bytes) > remaining:
+            # Leave room for the truncation note
+            cut = remaining - len(truncation_note.encode("utf-8"))
+            # Truncate at last paragraph break before the cut point
+            truncated = body_bytes[:cut].decode("utf-8", errors="ignore")
+            last_break = truncated.rfind("\n\n")
+            if last_break > 0:
+                truncated = truncated[:last_break]
+            return header + truncated + truncation_note
+        return header + body
 
     def validate(self, artifact: ArtifactIR) -> list[Diagnostic]:
         return []
