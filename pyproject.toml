@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "init-deep"
+version = "0.1.0"
+description = "Multi-platform AI documentation compiler"
+requires-python = ">=3.11"
+license = "MIT"
+
+[project.scripts]
+init-deep = "init_deep.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

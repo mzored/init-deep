@@ -1,0 +1,50 @@
+# Target platform metadata for drift monitoring.
+# Review dates track when target capabilities were last verified against upstream docs.
+
+[claude]
+doc_url = "https://docs.anthropic.com/en/docs/claude-code/memory"
+last_reviewed = "2026-04-03"
+status = "stable"
+notes = "Skills, plugins, hooks, subagents"
+
+[cursor]
+doc_url = "https://cursor.com/docs/rules"
+last_reviewed = "2026-04-03"
+status = "stable"
+notes = "Rules, AGENTS.md, Agent Skills"
+
+[copilot]
+doc_url = "https://docs.github.com/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot"
+last_reviewed = "2026-04-03"
+status = "stable"
+notes = "Repo-wide instructions, path-specific, prompt files (preview)"
+
+[gemini]
+doc_url = "https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/custom-commands.md"
+last_reviewed = "2026-04-03"
+status = "stable"
+notes = "GEMINI.md, custom commands in TOML"
+
+[windsurf]
+doc_url = "https://docs.windsurf.com/windsurf/cascade/agents-md"
+last_reviewed = "2026-04-03"
+status = "stable"
+notes = "AGENTS.md, rules, workflows, skills"
+
+[cline]
+doc_url = "https://docs.cline.bot/customization/cline-rules"
+last_reviewed = "2026-04-03"
+status = "stable"
+notes = "Rules, skills, workflows, auto-detects AGENTS.md"
+
+[continue]
+doc_url = "https://docs.continue.dev/customize/deep-dives/rules"
+last_reviewed = "2026-04-03"
+status = "beta"
+notes = "Rules and Prompts"
+
+[roo]
+doc_url = "https://docs.roocode.com/features/skills"
+last_reviewed = "2026-04-03"
+status = "beta"
+notes = "Custom instructions, skills, modes, marketplace"

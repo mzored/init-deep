@@ -7,23 +7,7 @@ sys.path.insert(0, str(ROOT))
 
 from tools.init_deep.source import load_canonical_source
 from tools.init_deep.renderers import render_distribution
-
-
-def managed_paths(root: Path) -> set[Path]:
-    patterns = (
-        "skills/init-deep/SKILL.md",
-        "adapters/cursor.mdc",
-        "adapters/cursor/commands/*",
-        "adapters/gemini/commands/*",
-        "adapters/copilot.md",
-        "adapters/copilot/prompts/*",
-        "adapters/windsurf/*",
-        "adapters/cline/*",
-    )
-    paths: set[Path] = set()
-    for pattern in patterns:
-        paths.update(path for path in root.glob(pattern) if path.is_file())
-    return paths
+from tools.init_deep.paths import managed_paths
 
 
 def main() -> int:
