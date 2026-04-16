@@ -31,7 +31,7 @@ class RepoMetadataTests(unittest.TestCase):
         self.assertIn("platform-native", marketplace)
         self.assertIn("Windsurf", plugin)
         self.assertIn("Cline", plugin)
-        self.assertIn("7 AI coding platforms", marketplace)
+        self.assertIn("10 AI coding platforms", marketplace)
 
     def test_public_repo_hygiene_files_exist(self) -> None:
         for relative_path in (
@@ -50,17 +50,25 @@ class RepoMetadataTests(unittest.TestCase):
         text = (ROOT / ".gitignore").read_text(encoding="utf-8")
         for expected in (
             ".DS_Store",
+            ".claude/",
             ".serena/",
             "**/__pycache__/",
             "*.py[cod]",
+            "*.egg-info/",
+            "build/",
+            "dist/",
             ".venv/",
             "docs/superpowers/",
+            "*.zip",
         ):
             self.assertIn(expected, text)
 
     def test_contributing_documents_the_generated_artifact_workflow(self) -> None:
         text = (ROOT / ".github/CONTRIBUTING.md").read_text(encoding="utf-8")
-        self.assertIn("source/init-deep/canonical.md", text)
+        self.assertIn("spec.toml", text)
+        self.assertIn("body.md", text)
+        self.assertIn("canonical.md", text)
+        self.assertIn("python3 -m src.init_deep.cli build", text)
         self.assertIn("python3 scripts/check_init_deep.py", text)
         self.assertIn("python3 scripts/build_init_deep.py", text)
         self.assertIn("python3 -m unittest discover -s tests -v", text)
@@ -82,7 +90,7 @@ class RepoMetadataTests(unittest.TestCase):
         self.assertIn("metadata", marketplace)
         self.assertEqual(
             marketplace["metadata"]["description"],
-            "Canonical init-deep prompt with generated platform-native adapters for 7 AI coding platforms",
+            "Canonical init-deep prompt with generated platform-native adapters for 10 AI coding platforms",
         )
 
     def test_plugin_and_marketplace_versions_are_synced_semver(self) -> None:

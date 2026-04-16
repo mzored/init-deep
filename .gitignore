@@ -2,12 +2,16 @@
 .DS_Store
 
 # Local assistant state
+.claude/
 .serena/
 docs/superpowers/
 
-# Python caches and environments
+# Python caches, environments, and packaging
 **/__pycache__/
 *.py[cod]
+*.egg-info/
+build/
+dist/
 .coverage
 .coverage.*
 .mypy_cache/
@@ -19,6 +23,10 @@ venv/
 # Local editor settings
 .idea/
 .vscode/
+
+# Archives and scratch files
+*.zip
+gpt-*.md
 
 # Git worktrees
 .worktrees/

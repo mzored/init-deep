@@ -10,8 +10,8 @@ List the commands you ran and any relevant output.
 
 ## Generated artifacts
 
-- [ ] I updated `source/init-deep/canonical.md` for any change that affects generated output.
-- [ ] I rebuilt generated artifacts when the canonical source changed.
+- [ ] I updated source files (`spec.toml`/`body.md` or `canonical.md`) for any change that affects generated output.
+- [ ] I rebuilt generated artifacts when the source changed.
 
 ## Checklist
 

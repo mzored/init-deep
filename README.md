@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Deep codebase analysis and multi-agent documentation generator. The checked-in artifacts in `skills/` and `adapters/` are generated from `source/init-deep/canonical.md`; edit the canonical source and rebuild instead of hand-editing distribution files.
+Deep codebase analysis and multi-agent documentation generator. The checked-in artifacts in `skills/` and `adapters/` are generated from source files in `source/`; edit the source and rebuild instead of hand-editing distribution files.
 
 ## What it does
 
@@ -123,7 +123,16 @@ rm -rf /tmp/init-deep
 
 ## Keeping docs in sync
 
-`source/init-deep/canonical.md` is the canonical source of truth for this repository. After editing it, rebuild the generated artifacts and rerun validation so `skills/`, `adapters/`, and metadata stay synchronized.
+The source of truth lives in `source/commands/init-deep/` (`spec.toml` +
+`body.md`). The legacy single-file `source/init-deep/canonical.md` is also
+supported. After editing source files, rebuild the generated artifacts and rerun
+validation so `skills/`, `adapters/`, and metadata stay synchronized:
+
+```bash
+python3 -m src.init_deep.cli build
+python3 -m src.init_deep.cli check
+git diff --exit-code
+```
 
 ## Contributing
 
