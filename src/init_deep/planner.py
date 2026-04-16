@@ -112,6 +112,10 @@ def _infer_target(relpath: str) -> str:
         return "windsurf"
     if "cline" in relpath:
         return "cline"
+    if "continue" in relpath:
+        return "continue"
+    if "roo" in relpath:
+        return "roo"
     if "skill" in relpath:
         return "claude"
     return "unknown"

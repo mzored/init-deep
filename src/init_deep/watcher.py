@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -52,9 +53,9 @@ def get_watch_paths(root: Path) -> list[Path]:
 
 def watch_loop(
     root: Path,
-    build_fn: callable,
+    build_fn: Callable[[], int],
     interval: float = 1.0,
-    on_change: callable | None = None,
+    on_change: Callable[[list[Path]], None] | None = None,
     max_iterations: int | None = None,
 ) -> None:
     """Poll for changes and rebuild.

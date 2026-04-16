@@ -47,11 +47,8 @@ def _cmd_build(args: argparse.Namespace) -> int:
     selected = _resolve_selected_targets(args)
     print(f"Targets: {', '.join(selected)}")
 
-    # Import lazily so the module-level sys.path tweak takes effect first.
-    from tools.init_deep.source import load_canonical_source
-    from tools.init_deep.renderers import render_distribution
     from tools.init_deep.paths import managed_paths
-
+    from .build import build_v2
     from .planner import (
         plan_build,
         format_plan_table,
@@ -59,8 +56,11 @@ def _cmd_build(args: argparse.Namespace) -> int:
         format_plan_diff,
     )
 
-    source = load_canonical_source(root / "source/init-deep/canonical.md")
-    outputs = render_distribution(source)
+    # Use new pipeline with target selection
+    source_dir = root / "source/commands/init-deep"
+    if not (source_dir / "spec.toml").exists():
+        source_dir = root / "source/init-deep/canonical.md"
+    outputs = build_v2(source_dir, selected)
     managed = managed_paths(root)
 
     # --dry-run, --diff, --json: compute plan without writing
@@ -99,14 +99,15 @@ def _cmd_check(args: argparse.Namespace) -> int:
     print(f"Targets: {', '.join(selected)}")
 
     from difflib import unified_diff
-    from tools.init_deep.source import load_canonical_source
-    from tools.init_deep.renderers import render_distribution
     from tools.init_deep.paths import managed_paths
-
+    from .build import build_v2
     from .planner import plan_build, format_plan_diff
 
-    source = load_canonical_source(root / "source/init-deep/canonical.md")
-    outputs = render_distribution(source)
+    # Use new pipeline with target selection
+    source_dir = root / "source/commands/init-deep"
+    if not (source_dir / "spec.toml").exists():
+        source_dir = root / "source/init-deep/canonical.md"
+    outputs = build_v2(source_dir, selected)
     managed = managed_paths(root)
 
     show_diff = getattr(args, "diff", False)
