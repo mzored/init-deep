@@ -52,7 +52,8 @@ def _cmd_build(args: argparse.Namespace) -> int:
     from tools.init_deep.renderers import render_distribution
     from tools.init_deep.paths import managed_paths
 
-    from .planner import (
+    from .linter import lint_command
+from .planner import (
         plan_build,
         format_plan_table,
         format_plan_json,
@@ -148,6 +149,30 @@ def _cmd_check(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_lint(args: argparse.Namespace) -> int:
+    root = _project_root()
+    spec_dir = root / "source" / "commands" / args.command_name
+    if not spec_dir.is_dir():
+        print(f"error: command directory not found: {spec_dir}", file=sys.stderr)
+        return 1
+
+    diagnostics = lint_command(spec_dir)
+    if not diagnostics:
+        print("lint: clean")
+        return 0
+
+    has_errors = False
+    for d in diagnostics:
+        print(d)
+        if d.severity == "error":
+            has_errors = True
+
+    errors = sum(1 for d in diagnostics if d.severity == "error")
+    warnings = sum(1 for d in diagnostics if d.severity == "warning")
+    print(f"\n{errors} error(s), {warnings} warning(s)")
+    return 1 if has_errors else 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         prog="init-deep",
@@ -206,6 +231,17 @@ def main() -> int:
                 help="Output build plan as machine-readable JSON",
             )
 
+    # lint subcommand
+    lint_parser = sub.add_parser(
+        "lint", help="Validate source schema and semantics"
+    )
+    lint_parser.add_argument(
+        "--command",
+        dest="command_name",
+        default="init-deep",
+        help="Command to lint (default: init-deep)",
+    )
+
     args = parser.parse_args()
 
     if args.command is None:
@@ -215,6 +251,7 @@ def main() -> int:
     dispatch = {
         "build": _cmd_build,
         "check": _cmd_check,
+        "lint": _cmd_lint,
     }
     return dispatch[args.command](args)
 
