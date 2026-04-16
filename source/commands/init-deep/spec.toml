@@ -1,0 +1,43 @@
+version = 1
+id = "init-deep"
+title = "/init-deep"
+summary = "Deep project initialization for multi-assistant documentation"
+intent = "manual_workflow"
+
+[body]
+file = "body.md"
+
+[[flags]]
+name = "--create-new"
+kind = "bool"
+description = "Regenerate docs from scratch after reading existing files"
+
+[[flags]]
+name = "--max-depth"
+kind = "int"
+default = 3
+description = "Maximum analysis depth"
+
+[[flags]]
+name = "--only"
+kind = "csv"
+items = ["claude", "codex", "gemini", "copilot", "cursor", "windsurf", "cline"]
+description = "Generate only for specified platforms"
+
+[[flags]]
+name = "--dry-run"
+kind = "bool"
+description = "Preview changes without writing files"
+
+[[flags]]
+name = "--doctor"
+kind = "bool"
+description = "Validate workspace configuration and target compatibility"
+
+[[flags]]
+name = "--sync-check"
+kind = "bool"
+description = "Verify generated artifacts match source"
+
+[compatibility]
+legacy_source_file = "source/init-deep/canonical.md"
