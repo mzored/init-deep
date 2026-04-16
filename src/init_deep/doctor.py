@@ -28,6 +28,7 @@ def run_doctor(root: Path) -> list[HealthCheck]:
     checks.extend(_check_config(root))
     checks.extend(_check_artifacts(root))
     checks.extend(_check_stale_legacy(root))
+    checks.extend(_check_drift(root))
 
     return checks
 
@@ -178,6 +179,31 @@ def _check_stale_legacy(root: Path) -> list[HealthCheck]:
                 )
             )
     return checks
+
+
+def _check_drift(root: Path) -> list[HealthCheck]:
+    registry_path = root / "targets" / "registry.toml"
+    if not registry_path.exists():
+        return []
+
+    from .drift import check_drift, load_registry_meta
+
+    try:
+        metas = load_registry_meta(registry_path)
+    except Exception as exc:
+        return [
+            HealthCheck("drift", "warning", f"Failed to load registry.toml: {exc}")
+        ]
+
+    warnings = check_drift(metas)
+    if warnings:
+        checks: list[HealthCheck] = []
+        for w in warnings:
+            checks.append(HealthCheck("drift", "warning", w.message))
+        return checks
+    return [
+        HealthCheck("drift", "ok", f"All {len(metas)} targets reviewed recently")
+    ]
 
 
 # -- formatting ---------------------------------------------------------------
