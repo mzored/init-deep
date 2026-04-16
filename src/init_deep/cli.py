@@ -4,6 +4,10 @@ import argparse
 import sys
 from pathlib import Path
 
+from .config import load_config
+from .selection import resolve_targets
+from .targets.registry import create_default_registry
+
 
 def _project_root() -> Path:
     """Walk up from this file to find the repo root (contains source/)."""
@@ -21,9 +25,27 @@ def _ensure_tools_importable(root: Path) -> None:
         sys.path.insert(0, tools_parent)
 
 
-def _cmd_build(_args: argparse.Namespace) -> int:
+def _resolve_selected_targets(args: argparse.Namespace) -> list[str]:
+    """Load config and resolve target selection from CLI flags."""
+    root = _project_root()
+    config_path = Path(args.config) if args.config else root / ".init-deep.toml"
+    config = load_config(config_path)
+
+    registry = create_default_registry()
+    available = registry.list_targets()
+
+    only = [t.strip() for t in args.only.split(",")] if args.only else None
+    skip = [name for name in available if getattr(args, f"skip_{name}", False)]
+
+    return resolve_targets(available, config.targets, only=only, skip=skip or None)
+
+
+def _cmd_build(args: argparse.Namespace) -> int:
     root = _project_root()
     _ensure_tools_importable(root)
+
+    selected = _resolve_selected_targets(args)
+    print(f"Targets: {', '.join(selected)}")
 
     # Import lazily so the module-level sys.path tweak takes effect first.
     from tools.init_deep.source import load_canonical_source
@@ -44,9 +66,12 @@ def _cmd_build(_args: argparse.Namespace) -> int:
     return 0
 
 
-def _cmd_check(_args: argparse.Namespace) -> int:
+def _cmd_check(args: argparse.Namespace) -> int:
     root = _project_root()
     _ensure_tools_importable(root)
+
+    selected = _resolve_selected_targets(args)
+    print(f"Targets: {', '.join(selected)}")
 
     from difflib import unified_diff
     from tools.init_deep.source import load_canonical_source
@@ -93,8 +118,33 @@ def main() -> int:
     )
     sub = parser.add_subparsers(dest="command")
 
-    sub.add_parser("build", help="Regenerate all platform adapters")
-    sub.add_parser("check", help="Validate generated artifacts match canonical source")
+    # Shared target-selection flags for build and check
+    registry = create_default_registry()
+    target_names = registry.list_targets()
+
+    for name, help_text in [
+        ("build", "Regenerate all platform adapters"),
+        ("check", "Validate generated artifacts match canonical source"),
+    ]:
+        sp = sub.add_parser(name, help=help_text)
+        sp.add_argument(
+            "--config",
+            default=None,
+            help="Path to .init-deep.toml config file",
+        )
+        sp.add_argument(
+            "--only",
+            default=None,
+            help="Comma-separated list of targets to generate (e.g. claude,copilot)",
+        )
+        for tname in target_names:
+            sp.add_argument(
+                f"--skip-{tname}",
+                dest=f"skip_{tname}",
+                action="store_true",
+                default=False,
+                help=f"Skip the {tname} target",
+            )
 
     args = parser.parse_args()
 
