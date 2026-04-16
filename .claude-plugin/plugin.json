@@ -1,7 +1,7 @@
 {
   "name": "init-deep",
-  "version": "1.1.1",
-  "description": "Canonical init-deep prompt with generated platform-native adapters for Claude, Codex, Cursor, Gemini, Copilot, Windsurf, and Cline",
+  "version": "1.2.0",
+  "description": "Canonical init-deep prompt with generated platform-native adapters for Claude, Codex, Cursor, Gemini, Copilot, Windsurf, Cline, Continue, and Roo Code",
   "author": {
     "name": "mzored"
   },

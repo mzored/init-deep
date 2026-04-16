@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "init-deep"
-version = "0.1.0"
+version = "1.2.0"
 description = "Multi-platform AI documentation compiler"
 requires-python = ">=3.11"
 license = "MIT"
