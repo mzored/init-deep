@@ -13,6 +13,10 @@ class ReadmeContractTests(unittest.TestCase):
         self.assertIn("adapters/windsurf/init-deep.md", readme)
         self.assertIn("adapters/cline/init-deep.md", readme)
         self.assertIn("chat.promptFiles", readme)
+        self.assertIn(".codex-plugin/plugin.json", readme)
+        self.assertIn(".agents/plugins/marketplace.json", readme)
+        self.assertNotIn("~/.codex/skills/init-deep", readme)
+        self.assertIn("source/commands/init-deep/spec.toml", readme)
         self.assertIn("source/init-deep/canonical.md", readme)
 
     def test_readme_documents_new_modes(self) -> None:

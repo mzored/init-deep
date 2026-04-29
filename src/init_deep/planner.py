@@ -158,7 +158,7 @@ def format_plan_json(plan: BuildPlan) -> str:
 def format_plan_diff(
     plan: BuildPlan, outputs: dict[str, str], root: Path
 ) -> str:
-    """Format plan as unified diff for changed files."""
+    """Format plan as unified diff for changed, new, and stale files."""
     diffs: list[str] = []
     for action in plan.actions:
         if action.status in ("changed", "new"):
@@ -170,6 +170,17 @@ def format_plan_diff(
                 expected.splitlines(keepends=True),
                 fromfile=action.relpath,
                 tofile=f"{action.relpath} (generated)",
+            ))
+            if diff:
+                diffs.append(diff)
+        elif action.op == "delete":
+            path = root / action.relpath
+            current = path.read_text(encoding="utf-8") if path.exists() else ""
+            diff = "".join(unified_diff(
+                current.splitlines(keepends=True),
+                [],
+                fromfile=action.relpath,
+                tofile=f"{action.relpath} (deleted)",
             ))
             if diff:
                 diffs.append(diff)

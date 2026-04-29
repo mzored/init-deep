@@ -7,6 +7,12 @@ last_reviewed = "2026-04-03"
 status = "stable"
 notes = "Skills, plugins, hooks, subagents"
 
+[codex]
+doc_url = "https://developers.openai.com/codex/guides/agents-md"
+last_reviewed = "2026-04-29"
+status = "stable"
+notes = "AGENTS.md, skills, plugins, subagents"
+
 [cursor]
 doc_url = "https://cursor.com/docs/rules"
 last_reviewed = "2026-04-03"
@@ -45,6 +51,6 @@ notes = "Rules and Prompts"
 
 [roo]
 doc_url = "https://docs.roocode.com/features/skills"
-last_reviewed = "2026-04-03"
-status = "beta"
-notes = "Custom instructions, skills, modes, marketplace"
+last_reviewed = "2026-04-29"
+status = "deprecated"
+notes = "Roo Code docs announce shutdown on May 15, 2026; keep adapter for existing users only"

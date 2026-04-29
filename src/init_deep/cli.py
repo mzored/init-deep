@@ -40,6 +40,26 @@ def _resolve_selected_targets(args: argparse.Namespace) -> list[str]:
     return resolve_targets(available, config.targets, only=only, skip=skip or None)
 
 
+def _managed_paths_for_selected_targets(
+    root: Path,
+    managed: set[Path],
+    selected: list[str],
+) -> set[Path]:
+    """Return managed paths that belong to the selected targets."""
+    registry = create_default_registry()
+    if set(selected) == set(registry.list_targets()):
+        return managed
+
+    from .planner import _infer_target
+
+    selected_set = set(selected)
+    return {
+        path
+        for path in managed
+        if _infer_target(str(path.relative_to(root))) in selected_set
+    }
+
+
 def _cmd_build(args: argparse.Namespace) -> int:
     root = _project_root()
     _ensure_tools_importable(root)
@@ -62,7 +82,7 @@ def _cmd_build(args: argparse.Namespace) -> int:
     if not (source_dir / "spec.toml").exists():
         source_dir = root / "source/init-deep/canonical.md"
     outputs = build_v2(source_dir, selected)
-    managed = managed_paths(root)
+    managed = _managed_paths_for_selected_targets(root, managed_paths(root), selected)
 
     # --dry-run, --diff, --json: compute plan without writing
     dry_run = getattr(args, "dry_run", False)
@@ -110,12 +130,12 @@ def _cmd_check(args: argparse.Namespace) -> int:
     if not (source_dir / "spec.toml").exists():
         source_dir = root / "source/init-deep/canonical.md"
     outputs = build_v2(source_dir, selected)
-    managed = managed_paths(root)
+    managed = _managed_paths_for_selected_targets(root, managed_paths(root), selected)
 
     show_diff = getattr(args, "diff", False)
 
     if show_diff:
-        plan = plan_build(outputs, root, managed)
+        plan = plan_build(outputs, root, managed, prune=True)
         print(format_plan_diff(plan, outputs, root))
         has_issues = bool(plan.writes or plan.deletes)
         return 1 if has_issues else 0

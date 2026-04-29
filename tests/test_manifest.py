@@ -61,7 +61,9 @@ class TestLoadSpec(unittest.TestCase):
         only_flag = next(f for f in self.spec.flags if f.name == "--only")
         self.assertIn("claude", only_flag.items)
         self.assertIn("cursor", only_flag.items)
-        self.assertEqual(len(only_flag.items), 7)
+        self.assertIn("continue", only_flag.items)
+        self.assertIn("roo", only_flag.items)
+        self.assertEqual(len(only_flag.items), 9)
 
     def test_int_flag_has_default(self):
         max_depth = next(f for f in self.spec.flags if f.name == "--max-depth")

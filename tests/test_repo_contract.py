@@ -31,7 +31,31 @@ class RepoMetadataTests(unittest.TestCase):
         self.assertIn("platform-native", marketplace)
         self.assertIn("Windsurf", plugin)
         self.assertIn("Cline", plugin)
-        self.assertIn("10 AI coding platforms", marketplace)
+        self.assertIn("9 AI coding platforms", marketplace)
+
+    def test_codex_plugin_manifest_exists_and_points_to_skills(self) -> None:
+        plugin = json.loads(
+            (ROOT / ".codex-plugin/plugin.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(plugin["name"], "init-deep")
+        self.assertEqual(plugin["version"], "1.3.0")
+        self.assertEqual(plugin["description"], "Multi-platform AI documentation generator")
+        self.assertEqual(plugin["skills"], "./skills/")
+        self.assertEqual(plugin["interface"]["displayName"], "init-deep")
+        self.assertIn("Deeply analyze a codebase", plugin["interface"]["defaultPrompt"][0])
+
+    def test_codex_repo_marketplace_exposes_plugin(self) -> None:
+        marketplace = json.loads(
+            (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(marketplace["name"], "init-deep")
+        self.assertEqual(marketplace["interface"]["displayName"], "init-deep")
+        plugin = marketplace["plugins"][0]
+        self.assertEqual(plugin["name"], "init-deep")
+        self.assertEqual(plugin["source"], {"source": "local", "path": "./"})
+        self.assertEqual(plugin["policy"]["installation"], "AVAILABLE")
+        self.assertEqual(plugin["policy"]["authentication"], "ON_INSTALL")
+        self.assertEqual(plugin["category"], "Developer Tools")
 
     def test_public_repo_hygiene_files_exist(self) -> None:
         for relative_path in (
@@ -45,6 +69,16 @@ class RepoMetadataTests(unittest.TestCase):
             ".github/ISSUE_TEMPLATE/feature_request.yml",
         ):
             self.assertTrue((ROOT / relative_path).is_file(), relative_path)
+
+    def test_root_agent_docs_describe_current_compiler_pipeline(self) -> None:
+        for relative_path in ("AGENTS.md", "CLAUDE.md", "GEMINI.md"):
+            with self.subTest(relative_path=relative_path):
+                text = (ROOT / relative_path).read_text(encoding="utf-8")
+                self.assertIn("source/commands/init-deep/spec.toml", text)
+                self.assertIn("src/init_deep/targets/", text)
+                self.assertIn("9 built-in targets", text)
+                self.assertNotIn("render functions (8 total)", text)
+                self.assertNotIn("Plugin registry (10 targets)", text)
 
     def test_gitignore_covers_local_state_and_python_artifacts(self) -> None:
         text = (ROOT / ".gitignore").read_text(encoding="utf-8")
@@ -68,9 +102,9 @@ class RepoMetadataTests(unittest.TestCase):
         self.assertIn("spec.toml", text)
         self.assertIn("body.md", text)
         self.assertIn("canonical.md", text)
-        self.assertIn("python3 -m src.init_deep.cli build", text)
-        self.assertIn("python3 scripts/check_init_deep.py", text)
         self.assertIn("python3 scripts/build_init_deep.py", text)
+        self.assertIn("python3 scripts/check_init_deep.py", text)
+        self.assertIn("python3 -m src.init_deep.cli check", text)
         self.assertIn("python3 -m unittest discover -s tests -v", text)
 
     def test_security_policy_requires_private_reports_for_sensitive_issues(self) -> None:
@@ -90,7 +124,7 @@ class RepoMetadataTests(unittest.TestCase):
         self.assertIn("metadata", marketplace)
         self.assertEqual(
             marketplace["metadata"]["description"],
-            "Canonical init-deep prompt with generated platform-native adapters for 10 AI coding platforms",
+            "Canonical init-deep prompt with generated platform-native adapters for 9 AI coding platforms",
         )
 
     def test_plugin_and_marketplace_versions_are_synced_semver(self) -> None:

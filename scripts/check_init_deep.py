@@ -5,14 +5,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from tools.init_deep.source import load_canonical_source
-from tools.init_deep.renderers import render_distribution
+from src.init_deep.build import build_v2
 from tools.init_deep.paths import managed_paths
 
 
 def main() -> int:
-    source = load_canonical_source(ROOT / "source/init-deep/canonical.md")
-    expected_outputs = render_distribution(source)
+    expected_outputs = build_v2(ROOT / "source/commands/init-deep")
     mismatches: list[str] = []
     expected_paths = {ROOT / relative_path for relative_path in expected_outputs}
 

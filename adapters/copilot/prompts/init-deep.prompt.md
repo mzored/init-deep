@@ -17,7 +17,7 @@ Analyze codebase deeply. Generate documentation that works across AI coding agen
 | `.claude/rules/*.md` | Claude Code | glob-scoped | Scoped module docs with `paths:` frontmatter |
 | `.cursor/rules/*.mdc` | Cursor | glob-scoped | Scoped module docs with `globs:` frontmatter |
 
-**No cross-tool reading** — each tool reads ONLY its own file(s). That's why we generate all formats.
+**Primary native surfaces** — each tool has preferred file locations and formats. Some tools also read cross-compatible fallbacks, but portability comes from generating each platform's native surface.
 
 **Key principle:** `AGENTS.md` is the canonical source. All other root files are derived from it with tool-specific additions. Content overlap ~90%.
 
@@ -32,7 +32,7 @@ Analyze codebase deeply. Generate documentation that works across AI coding agen
 /init-deep --skip-copilot       # Skip .github/copilot-instructions.md
 /init-deep --skip-windsurf      # Skip .windsurfrules
 /init-deep --skip-cline         # Skip .clinerules
-/init-deep --only=claude,codex  # Generate only specified formats (comma-separated)
+/init-deep --only=claude,codex  # Generate only specified platforms (comma-separated)
 /init-deep --dry-run            # Preview what would be generated without writing files
 /init-deep --doctor             # Verify existing docs are valid and complete
 /init-deep --sync-check         # Check if derived files are in sync with canonical source
@@ -68,7 +68,7 @@ Track ALL phases with TodoWrite. Mark progress in real-time.
 
 ### Fire Background Analysis IMMEDIATELY
 
-Launch concurrent Agent subagents for:
+When the host platform supports subagents or parallel background agents, launch concurrent read-only analysis workers for:
 
 1. **Project structure**: Language, framework, build system. Report only non-standard patterns.
 2. **Entry points**: Main files, CLI entry points, server startup. Report non-standard organization.
@@ -90,9 +90,11 @@ After initial analysis, scale based on project size:
 | Monorepo | detected | Per-package analysis |
 | Multiple languages | >1 | Per-language analysis |
 
+If subagents are unavailable, run the same analyses in the main session and state that concurrency was unavailable.
+
 ### Structural Analysis
 
-Use Glob and Grep tools (NOT bash find/grep) for:
+Use the platform's native file search tools (Glob/Grep/Search, `rg`, or equivalent) for:
 - File counts per directory (top 30)
 - Directory depth distribution
 - Code concentration by extension
@@ -100,10 +102,10 @@ Use Glob and Grep tools (NOT bash find/grep) for:
 - Existing docs across all agent formats:
 
 ```
-Glob: **/CLAUDE.md, **/AGENTS.md, **/GEMINI.md, **/AGENTS.override.md
-Glob: .claude/rules/*.md
-Glob: .cursor/rules/*.mdc
-Glob: .github/copilot-instructions.md
+Search: **/CLAUDE.md, **/AGENTS.md, **/GEMINI.md, **/AGENTS.override.md
+Search: .claude/rules/*.md
+Search: .cursor/rules/*.mdc
+Search: .github/copilot-instructions.md
 ```
 
 ### Read All Existing Documentation
@@ -153,15 +155,5 @@ Score each directory to determine if it needs scoped documentation:
 | **<8** | Skip — root docs cover it |
 
 ### Naming Convention
-
-Derive names from directory paths:
-- `src/domain/` -> `src/domain/AGENTS.md` + `.claude/rules/domain.md` + `.cursor/rules/domain.mdc`
-- `src/runtime/` -> `src/runtime/AGENTS.md` + `.claude/rules/runtime.md`
-- `src/tracks/copy_trade/` -> `src/tracks/copy_trade/AGENTS.md` + `.claude/rules/tracks-copy-trade.md`
-- `tests/` -> `tests/AGENTS.md` + `.claude/rules/testing.md`
-
----
-
-## Phase 3: Generate Files
 
 <!-- Truncated to fit Copilot prompt budget. See the full workflow in the Claude Code or Cursor adapter. -->

@@ -20,6 +20,15 @@ class CanonicalSourceTests(unittest.TestCase):
         self.assertIn("## Phase 1: Discovery + Analysis (Concurrent)", source.raw)
         self.assertIn("Track ALL phases with TodoWrite.", source.raw)
 
+    def test_canonical_source_uses_platform_neutral_search_guidance(self) -> None:
+        source = load_canonical_source(ROOT / "source/init-deep/canonical.md")
+        self.assertIn(
+            "Use the platform's native file search tools",
+            source.raw,
+        )
+        self.assertNotIn("Use Glob and Grep tools (NOT bash find/grep)", source.raw)
+        self.assertNotIn("Use Glob and Grep tools, not `find` or `grep`", source.raw)
+
     def test_distribution_declares_platform_native_outputs(self) -> None:
         source = load_canonical_source(ROOT / "source/init-deep/canonical.md")
         outputs = render_distribution(source)
@@ -120,6 +129,23 @@ class RepositoryCheckScriptTests(unittest.TestCase):
             self.assertIn("Unexpected generated artifacts", result.stdout)
         finally:
             extra.unlink()
+
+    def test_check_script_fails_for_continue_drift(self) -> None:
+        generated = ROOT / "adapters/continue/prompts/init-deep.md"
+        original = generated.read_text(encoding="utf-8")
+        generated.write_text(original + "\n<!-- drift -->\n", encoding="utf-8")
+        try:
+            result = subprocess.run(
+                ["python3", "scripts/check_init_deep.py"],
+                cwd=ROOT,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("adapters/continue/prompts/init-deep.md", result.stdout)
+        finally:
+            generated.write_text(original, encoding="utf-8")
 
 
 if __name__ == "__main__":

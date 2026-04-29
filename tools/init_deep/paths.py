@@ -11,6 +11,10 @@ MANAGED_PATTERNS = (
     "adapters/copilot/prompts/*",
     "adapters/windsurf/*",
     "adapters/cline/*",
+    "adapters/continue/prompts/*",
+    "adapters/continue/rules/*",
+    "adapters/roo/instructions/*",
+    "adapters/roo/skills/*",
 )
 
 

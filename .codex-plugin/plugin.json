@@ -1,0 +1,25 @@
+{
+  "name": "init-deep",
+  "version": "1.3.0",
+  "description": "Multi-platform AI documentation generator",
+  "author": {
+    "name": "mzored"
+  },
+  "homepage": "https://github.com/mzored/init-deep",
+  "repository": "https://github.com/mzored/init-deep",
+  "license": "MIT",
+  "keywords": ["documentation", "agents", "skills", "codex"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "init-deep",
+    "shortDescription": "Generate AI assistant project docs from one deep analysis.",
+    "longDescription": "Deeply analyze a codebase and generate platform-native AI assistant documentation for Codex, Claude Code, Cursor, Gemini, Copilot, Windsurf, Cline, Continue, and Roo Code.",
+    "developerName": "mzored",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://github.com/mzored/init-deep",
+    "defaultPrompt": [
+      "Deeply analyze a codebase and generate platform-native AI assistant documentation."
+    ]
+  }
+}

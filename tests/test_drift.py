@@ -20,10 +20,11 @@ class TestLoadRegistryMeta(unittest.TestCase):
     def test_loads_all_targets(self):
         metas = load_registry_meta(REGISTRY_PATH)
         names = [m.name for m in metas]
-        self.assertEqual(len(metas), 8)
+        self.assertEqual(len(metas), 9)
         for expected in [
             "claude",
             "cline",
+            "codex",
             "continue",
             "copilot",
             "cursor",
@@ -48,7 +49,7 @@ class TestLoadRegistryMeta(unittest.TestCase):
     def test_all_have_status(self):
         metas = load_registry_meta(REGISTRY_PATH)
         for meta in metas:
-            self.assertIn(meta.status, ("stable", "beta", "legacy"))
+            self.assertIn(meta.status, ("stable", "beta", "legacy", "deprecated"))
 
 
 class TestCheckDrift(unittest.TestCase):

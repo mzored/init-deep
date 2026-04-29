@@ -20,6 +20,8 @@ AI coding assistants work best when they have accurate, up-to-date context about
 - **GitHub Copilot** — generates `.github/copilot-instructions.md` and `.github/prompts/init-deep.prompt.md`
 - **Windsurf** — generates `.windsurfrules`
 - **Cline** — generates `.clinerules`
+- **Continue** — generates rules and prompts under `adapters/continue/`
+- **Roo Code** — generates instructions and skills under `adapters/roo/` for existing Roo users; Roo Code is sunsetting on May 15, 2026
 
 ## Quick Start
 
@@ -33,7 +35,7 @@ claude plugin install init-deep
 Then, inside a Claude Code session in your project directory, run:
 
 ```text
-/init-deep
+/init-deep:init-deep
 ```
 
 init-deep will analyze your codebase and generate or update all documentation files.
@@ -57,11 +59,15 @@ Or from an interactive Claude Code session:
 ### OpenAI Codex CLI
 
 ```bash
-git clone https://github.com/mzored/init-deep.git /tmp/init-deep
-mkdir -p ~/.codex/skills/init-deep
-cp /tmp/init-deep/skills/init-deep/SKILL.md ~/.codex/skills/init-deep/SKILL.md
-rm -rf /tmp/init-deep
+codex plugin marketplace add mzored/init-deep
+codex
+/plugins
 ```
+
+The Codex distribution is defined by `.codex-plugin/plugin.json` and the repo
+marketplace at `.agents/plugins/marketplace.json`. In the plugin browser,
+install `init-deep`, then mention the installed plugin or skill when you want
+the workflow.
 
 ### Cursor
 
@@ -133,7 +139,7 @@ init-deep runs as a slash command inside your AI assistant. All flags work acros
 
 ## How It Works
 
-init-deep generates AI-ready project documentation through a four-step pipeline. The output is a set of platform-native files — `AGENTS.md` for Codex, `CLAUDE.md` for Claude Code, and adapter files for Cursor, Copilot, Gemini, Windsurf, and Cline:
+init-deep generates AI-ready project documentation through a four-step pipeline. The output is a set of platform-native files — `AGENTS.md` for Codex, `CLAUDE.md` for Claude Code, and adapter files for Cursor, Copilot, Gemini, Windsurf, Cline, Continue, and Roo Code:
 
 1. **Discovery** — concurrent analysis of project structure, conventions, entry points, anti-patterns, build/CI configuration, and test patterns
 2. **Scoring** — each directory is scored to determine whether it warrants its own scoped documentation file
@@ -152,14 +158,19 @@ init-deep generates AI-ready project documentation through a four-step pipeline.
 | `.windsurfrules` | Windsurf | Windsurf context |
 | `.clinerules` | Cline | Cline context |
 | `.claude/rules/*.md` | Claude Code | Scoped module docs |
+| `adapters/continue/*` | Continue | Rules and prompt adapters |
+| `adapters/roo/*` | Roo Code | Instructions and skill adapters |
+| `.codex-plugin/plugin.json` | OpenAI Codex | Codex plugin manifest |
+| `.agents/plugins/marketplace.json` | OpenAI Codex | Repo marketplace entry |
 
 ## Development
 
-The source of truth for all generated artifacts lives in `source/commands/init-deep/` (`spec.toml` + `body.md`). The legacy single-file format `source/init-deep/canonical.md` is also supported. After editing source files, rebuild and validate:
+The source of truth for all generated artifacts lives in `source/commands/init-deep/spec.toml` and `source/commands/init-deep/body.md`. The legacy single-file format `source/init-deep/canonical.md` is also supported. After editing source files, rebuild and validate:
 
 ```bash
-python3 -m src.init_deep.cli build
 python3 -m src.init_deep.cli check
+python3 scripts/build_init_deep.py
+python3 scripts/check_init_deep.py
 git diff --exit-code
 ```
 

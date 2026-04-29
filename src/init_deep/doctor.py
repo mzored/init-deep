@@ -126,6 +126,12 @@ def _check_artifacts(root: Path) -> list[HealthCheck]:
         ]
 
     missing = [rp for rp in sorted(outputs) if not (root / rp).exists()]
+    changed = [
+        rp
+        for rp, content in sorted(outputs.items())
+        if (root / rp).exists()
+        and (root / rp).read_text(encoding="utf-8") != content
+    ]
 
     if missing:
         checks.append(
@@ -135,7 +141,15 @@ def _check_artifacts(root: Path) -> list[HealthCheck]:
                 f"Missing artifacts: {', '.join(missing)}",
             )
         )
-    else:
+    if changed:
+        checks.append(
+            HealthCheck(
+                "artifacts",
+                "warning",
+                f"Out-of-sync artifacts: {', '.join(changed)}",
+            )
+        )
+    if not missing and not changed:
         checks.append(
             HealthCheck("artifacts", "ok", f"All {len(outputs)} artifacts present")
         )

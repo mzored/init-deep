@@ -1,6 +1,7 @@
 """Tests for the doctor workspace health validator."""
 
 import sys
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -15,6 +16,7 @@ if str(ROOT) not in sys.path:
 
 from src.init_deep.doctor import (
     HealthCheck,
+    _check_artifacts,
     _check_config,
     _check_python_version,
     _check_source_exists,
@@ -22,6 +24,7 @@ from src.init_deep.doctor import (
     format_doctor_output,
     run_doctor,
 )
+from src.init_deep.build import build_v2
 
 
 class TestHealthCheckDataclass(unittest.TestCase):
@@ -90,6 +93,31 @@ class TestCheckStaleLegacy(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             checks = _check_stale_legacy(Path(tmp))
             self.assertEqual(len(checks), 0)
+
+
+class TestCheckArtifacts(unittest.TestCase):
+    def test_warns_for_out_of_sync_artifact(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "source" / "commands" / "init-deep"
+            shutil.copytree(ROOT / "source" / "commands" / "init-deep", source)
+
+            outputs = build_v2(source)
+            for relpath, content in outputs.items():
+                path = root / relpath
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(content, encoding="utf-8")
+
+            changed_relpath = sorted(outputs)[0]
+            (root / changed_relpath).write_text("manual edit\n", encoding="utf-8")
+
+            checks = _check_artifacts(root)
+
+            warnings = [c for c in checks if c.status == "warning"]
+            self.assertEqual(len(warnings), 1)
+            self.assertEqual(warnings[0].name, "artifacts")
+            self.assertIn("Out-of-sync artifacts", warnings[0].message)
+            self.assertIn(changed_relpath, warnings[0].message)
 
 
 class TestRunDoctor(unittest.TestCase):

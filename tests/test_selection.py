@@ -52,6 +52,10 @@ class TestResolveTargets(unittest.TestCase):
         with self.assertRaises(ValueError, msg="Unknown targets"):
             resolve_targets(AVAILABLE, config_targets=(), skip=["nonexistent"])
 
+    def test_unknown_target_in_config_raises(self) -> None:
+        with self.assertRaises(ValueError, msg="Unknown targets"):
+            resolve_targets(AVAILABLE, config_targets=("claude", "nonexistent"))
+
     def test_results_are_sorted(self) -> None:
         result = resolve_targets(AVAILABLE, config_targets=(), only=["windsurf", "claude"])
         self.assertEqual(result, ["claude", "windsurf"])

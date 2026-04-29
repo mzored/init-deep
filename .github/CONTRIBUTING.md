@@ -41,12 +41,15 @@ python3 scripts/build_init_deep.py
 
 # Common checks
 git diff --exit-code                     # Verify no uncommitted drift
+python3 -m src.init_deep.cli check       # Validate registry-generated adapters
 python3 -m unittest discover -s tests -v # Run all tests
 
 # Markdown and config validation
 npx -y markdownlint-cli2 "README.md" "skills/**/*.md" "adapters/**/*.md" "adapters/**/*.mdc"
 jq . .claude-plugin/plugin.json > /dev/null
 jq . .claude-plugin/marketplace.json > /dev/null
+jq . .codex-plugin/plugin.json > /dev/null
+jq . .agents/plugins/marketplace.json > /dev/null
 ```
 
 ## Pull requests

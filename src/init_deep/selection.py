@@ -27,6 +27,11 @@ def resolve_targets(
             raise ValueError(f"Unknown targets: {', '.join(sorted(unknown))}")
         return sorted(only)
 
+    if config_targets:
+        unknown = set(config_targets) - available_set
+        if unknown:
+            raise ValueError(f"Unknown targets: {', '.join(sorted(unknown))}")
+
     # Start with config targets or all available
     base = list(config_targets) if config_targets else list(available)
 

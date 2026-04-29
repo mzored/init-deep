@@ -21,7 +21,7 @@ description = "Maximum analysis depth"
 [[flags]]
 name = "--only"
 kind = "csv"
-items = ["claude", "codex", "gemini", "copilot", "cursor", "windsurf", "cline"]
+items = ["claude", "codex", "gemini", "copilot", "cursor", "windsurf", "cline", "continue", "roo"]
 description = "Generate only for specified platforms"
 
 [[flags]]

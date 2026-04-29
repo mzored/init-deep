@@ -18,6 +18,7 @@ jobs:
       - run: python3 scripts/check_init_deep.py
       - run: python3 scripts/build_init_deep.py
       - run: git diff --exit-code
+      - run: python3 -m src.init_deep.cli check
       - run: python3 -m src.init_deep.cli lint
       - run: python3 -m src.init_deep.cli doctor
       - run: python3 -m unittest discover -s tests -v
@@ -25,3 +26,5 @@ jobs:
       - run: npx -y markdownlint-cli2 "README.md" "skills/**/*.md" "adapters/**/*.md" "adapters/**/*.mdc"
       - run: jq . .claude-plugin/plugin.json > /dev/null
       - run: jq . .claude-plugin/marketplace.json > /dev/null
+      - run: jq . .codex-plugin/plugin.json > /dev/null
+      - run: jq . .agents/plugins/marketplace.json > /dev/null

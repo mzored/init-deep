@@ -2,7 +2,7 @@
 
 ## Overview
 
-Multi-platform AI documentation generator. Analyzes codebases and produces platform-native docs so every AI coding assistant understands the project. Built with Python 3.11, no external dependencies.
+Multi-platform AI documentation generator. It analyzes codebases and produces platform-native docs so AI coding assistants understand the project. Built with Python 3.11+ and the standard library only.
 
 ## Setup
 
@@ -11,16 +11,21 @@ python3 --version   # requires 3.11+
 node --version      # required only for markdownlint
 ```
 
-No install step — pure stdlib Python.
+No install step is required for local development.
 
 ## Commands
 
 ```bash
-# Build: regenerate all platform adapters from canonical source
+# Build: regenerate all platform adapters from source/commands/init-deep
 python3 scripts/build_init_deep.py
 
-# Validate: check generated artifacts match canonical source
+# Validate: check checked-in generated artifacts match source
 python3 scripts/check_init_deep.py
+python3 -m src.init_deep.cli check
+
+# Lint/doctor source metadata
+python3 -m src.init_deep.cli lint
+python3 -m src.init_deep.cli doctor
 
 # Test
 python3 -m unittest discover -s tests -v
@@ -32,63 +37,75 @@ npx -y markdownlint-cli2 "README.md" "skills/**/*.md" "adapters/**/*.md" "adapte
 python3 -c "from pathlib import Path; import tomllib; tomllib.loads(Path('adapters/gemini/commands/init-deep.toml').read_text(encoding='utf-8'))"
 jq . .claude-plugin/plugin.json > /dev/null
 jq . .claude-plugin/marketplace.json > /dev/null
+jq . .codex-plugin/plugin.json > /dev/null
+jq . .agents/plugins/marketplace.json > /dev/null
 
 # Full CI locally
-python3 scripts/check_init_deep.py && python3 scripts/build_init_deep.py && git diff --exit-code && python3 -m unittest discover -s tests -v
+python3 scripts/check_init_deep.py && python3 scripts/build_init_deep.py && git diff --exit-code && python3 -m src.init_deep.cli check && python3 -m unittest discover -s tests -v
 ```
 
 ## Architecture
 
+Primary pipeline:
+
 ```
-source/init-deep/canonical.md          # Single source of truth
+source/commands/init-deep/spec.toml    # typed manifest: flags, metadata, intent
+source/commands/init-deep/body.md      # markdown workflow body
     |
     v
-tools/init_deep/source.py             # Parses canonical, extracts CLI flags
-tools/init_deep/renderers.py          # Platform-specific render functions
+src/init_deep/manifest.py              # spec.toml -> CommandSpec
+src/init_deep/compiler.py              # CommandSpec + body -> CommandIR
+src/init_deep/targets/registry.py      # registry with 9 built-in targets
+src/init_deep/targets/                 # target plugins: plan() + render()
     |
     v
-scripts/build_init_deep.py            # Generates all distribution artifacts
-scripts/check_init_deep.py            # Validates sync (used in CI)
-    |
-    v
-skills/init-deep/SKILL.md             # Claude Code skill
-adapters/cursor.mdc                   # Cursor rule (trigger only)
+src/init_deep/build.py                 # build_v2(): renders artifacts
+scripts/build_init_deep.py             # writes generated artifacts
+scripts/check_init_deep.py             # byte-for-byte sync validation
+```
+
+Legacy compatibility:
+
+```
+source/init-deep/canonical.md          # legacy single-file source kept in sync
+tools/init_deep/source.py              # CanonicalSource parser
+tools/init_deep/renderers.py           # legacy renderer snapshots
+tools/init_deep/paths.py               # managed generated artifact paths
+```
+
+Generated/distribution files:
+
+```
+skills/init-deep/SKILL.md              # Claude Code / Agent Skills workflow
+adapters/cursor.mdc                    # Cursor trigger rule
 adapters/cursor/commands/init-deep.md  # Cursor full command
-adapters/copilot.md                   # Copilot instructions (short)
-adapters/copilot/prompts/*.prompt.md   # Copilot full prompt
+adapters/copilot.md                    # Copilot short repo instructions
+adapters/copilot/prompts/*.prompt.md   # Copilot prompt
 adapters/gemini/commands/*.toml        # Gemini CLI command
-adapters/windsurf/init-deep.md         # Windsurf rules
-adapters/cline/init-deep.md           # Cline rules
+adapters/windsurf/init-deep.md         # Windsurf adapter
+adapters/cline/init-deep.md            # Cline adapter
+adapters/continue/                     # Continue rules + prompt
+adapters/roo/                          # Roo Code instructions + skill
 .claude-plugin/                        # Claude Code plugin metadata
+.codex-plugin/                         # Codex plugin metadata
+.agents/plugins/marketplace.json       # Codex repo marketplace
 ```
-
-### Key Files
-
-| File | Role |
-|------|------|
-| `source/init-deep/canonical.md` | Single source of truth for all generated docs |
-| `tools/init_deep/renderers.py` | One render function per platform (8 total) |
-| `tools/init_deep/source.py` | `CanonicalSource` dataclass + flag extraction |
-| `scripts/build_init_deep.py` | Regenerates all artifacts, removes stale files |
-| `scripts/check_init_deep.py` | Byte-for-byte sync validation |
-| `.claude-plugin/plugin.json` | Plugin manifest for Claude Code marketplace |
-| `.github/workflows/validate.yml` | CI: check, build, diff, test, lint, validate configs |
 
 ## Conventions
 
-- **Canonical source pattern**: edit `source/init-deep/canonical.md` only; never hand-edit files in `skills/` or `adapters/`
-- **Generated artifacts checked in**: CI runs `build_init_deep.py` then `git diff --exit-code` to enforce sync
-- **No external dependencies**: pure Python stdlib (dataclasses, pathlib, re, textwrap, tomllib, unittest)
-- **Renderer architecture**: each platform gets a dedicated `render_*()` function in `renderers.py`
-- **Frozen dataclass**: `CanonicalSource` is immutable — `raw` text + extracted `flags` tuple
-- **Tests are integration-style**: read actual files from disk, no mocks, no fixtures
-- **Derived files marked generated**: `.gitattributes` uses `linguist-generated=true` so GitHub collapses diffs for derived files
-- **Contributing**: edit canonical source, rebuild artifacts, include both in the same PR
+- Edit `source/commands/init-deep/spec.toml` and `source/commands/init-deep/body.md` for workflow changes.
+- Keep `source/init-deep/canonical.md` byte-identical to `body.md` until legacy compatibility is removed.
+- Do not hand-edit generated artifacts in `skills/` or `adapters/`; rebuild them.
+- Target plugins live in `src/init_deep/targets/` and implement `plan()`, `render()`, and `validate()`.
+- Frozen dataclasses (`CommandSpec`, `CommandIR`, `SectionIR`, `ArtifactIR`) are the cross-target contract.
+- Tests are integration-style and read real files from disk.
+- `.gitattributes` marks generated outputs with `linguist-generated=true`.
 
 ## Known Pitfalls
 
-- `textwrap.dedent` fails with f-string interpolation when the body lacks common indentation — use plain string concatenation in renderers instead
-- Cursor `.mdc` rule uses `alwaysApply: false` — the full workflow lives in `commands/`, the rule just triggers it
-- Copilot `.md` instructions file must be short — Copilot truncates aggressively; the full prompt goes in `.github/prompts/`
-- Gemini adapter is TOML (not Markdown) — validate with `tomllib` after changes
-- `managed_paths()` in both scripts uses glob patterns to find generated files — update the pattern list when adding new adapters
+- `scripts/build_init_deep.py` and `scripts/check_init_deep.py` must cover every registry-generated artifact, including Continue and Roo.
+- `textwrap.dedent` fails with f-string interpolation when the body lacks common indentation; use plain string concatenation in renderers.
+- Cursor `.mdc` uses `alwaysApply: false`; the full workflow lives in `adapters/cursor/commands/init-deep.md`.
+- Copilot prompt output is budget-truncated; do not describe it as the complete workflow.
+- Gemini adapter is TOML, not Markdown; validate it with `tomllib`.
+- Roo Code is scheduled to shut down on May 15, 2026; keep Roo support for existing users only unless that upstream status changes.

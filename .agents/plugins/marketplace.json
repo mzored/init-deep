@@ -1,0 +1,20 @@
+{
+  "name": "init-deep",
+  "interface": {
+    "displayName": "init-deep"
+  },
+  "plugins": [
+    {
+      "name": "init-deep",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
